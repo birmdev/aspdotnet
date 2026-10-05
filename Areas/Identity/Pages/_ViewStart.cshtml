@@ -1,3 +1,8 @@
+@* _ViewStart : ce fichier est exécuté avant CHAQUE page du dossier Areas/Identity/Pages (Login, Register, Logout...).
+   Il indique quel "layout" (cadre commun : menu, pied de page, CSS...) utiliser autour de ces pages.
+   On utilise le MÊME layout que le reste de l'application (Views/Shared/_Layout.cshtml),
+   pour que les pages de connexion et d'inscription aient la même apparence que les autres pages.
+   (Visual Studio avait mis "/Pages/Shared/_Layout.cshtml", un fichier qui n'existe pas dans un projet MVC.) *@
 @{
-    Layout = "/Pages/Shared/_Layout.cshtml";
+    Layout = "/Views/Shared/_Layout.cshtml";
 }

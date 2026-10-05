@@ -5,7 +5,9 @@
     }
     else
     {
-        Layout = "/Areas/Identity/Pages/_Layout.cshtml";
+        // Les pages "Gérer mon compte" s'affichent elles aussi dans le layout principal de l'application.
+        // (Visual Studio avait mis "/Areas/Identity/Pages/_Layout.cshtml", un fichier qui n'existe pas.)
+        Layout = "/Views/Shared/_Layout.cshtml";
     }
 }
 
