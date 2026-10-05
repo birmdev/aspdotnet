@@ -1,0 +1,67 @@
+@* =====================================================================================
+   VUE EDIT : formulaire pour MODIFIER un étudiant existant (le "U" de CRUD = Update)
+   - Elle est affichée PRÉ-REMPLIE par l'action Edit(Guid id) (requête GET).
+   - Quand on clique sur "Enregistrer", le formulaire est envoyé à l'action Edit(Student student) (requête POST).
+   Ce formulaire est presque identique à celui de Create.cshtml : la grosse différence est le champ caché Id.
+   ===================================================================================== *@
+
+@* La vue reçoit l'étudiant à modifier : grâce à asp-for, chaque champ est automatiquement
+   pré-rempli avec la valeur actuelle (ex : le champ Nom contient déjà le nom de l'étudiant). *@
+@model AppASPNETCore.Models.Entities.Student
+
+@{
+    ViewData["Title"] = "Modifier un étudiant"; //Titre de l'onglet du navigateur
+}
+
+<h1>Modifier un étudiant</h1>
+
+@* Le formulaire est envoyé en POST à l'action Edit du contrôleur (la méthode marquée [HttpPost]).
+   Le jeton de sécurité anti-CSRF est ajouté automatiquement (voir Create.cshtml). *@
+<form asp-action="Edit" method="post">
+    @* Affiche les erreurs générales qui ne concernent pas un champ précis *@
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    @* CHAMP CACHÉ (type="hidden") : l'utilisateur ne le voit pas et ne peut pas le modifier dans le formulaire,
+       mais il est quand même envoyé au contrôleur.
+       Il est INDISPENSABLE : sans l'Id, le contrôleur ne saurait pas QUEL étudiant mettre à jour dans la base de données. *@
+    <input type="hidden" asp-for="Id" />
+
+    @* ----- Champ NOM (pré-rempli avec le nom actuel) ----- *@
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Nom</label>
+        <input asp-for="Name" class="form-control" />
+        @* Message d'erreur si le nom est vide ou trop long *@
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    @* ----- Champ EMAIL (pré-rempli avec l'email actuel) ----- *@
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label">Email</label>
+        <input asp-for="Email" class="form-control" />
+        @* Message d'erreur si le format de l'email est incorrect *@
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    @* ----- Champ TÉLÉPHONE (pré-rempli avec le téléphone actuel) ----- *@
+    <div class="mb-3">
+        <label asp-for="Phone" class="form-label">Téléphone</label>
+        <input asp-for="Phone" class="form-control" />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+
+    @* ----- Case à cocher ABONNÉ (déjà cochée si l'étudiant est abonné) ----- *@
+    <div class="mb-3 form-check">
+        <input asp-for="Subscribed" class="form-check-input" />
+        <label asp-for="Subscribed" class="form-check-label">Abonné</label>
+    </div>
+
+    @* Envoie le formulaire avec les nouvelles valeurs *@
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+    @* Revient à la liste sans rien modifier *@
+    <a asp-action="Index" class="btn btn-secondary">Annuler</a>
+</form>
+
+@* Charge les scripts de validation côté navigateur (voir l'explication dans Create.cshtml) *@
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

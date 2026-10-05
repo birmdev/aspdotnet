@@ -1,0 +1,38 @@
+@* =====================================================================================
+   VUE DETAILS : affiche toutes les informations d'UN seul étudiant (le "R" de CRUD = Read)
+   Cette vue est affichée par l'action Details(id) du StudentsController.
+   ===================================================================================== *@
+
+@* La vue reçoit UN SEUL étudiant (et non une liste comme dans Index).
+   Ses propriétés sont accessibles avec Model.Name, Model.Email, etc. *@
+@model AppASPNETCore.Models.Entities.Student
+
+@{
+    ViewData["Title"] = "Détails de l'étudiant"; //Titre de l'onglet du navigateur
+}
+
+<h1>Détails de l'étudiant</h1>
+
+@* <dl> = "description list" : une liste de couples "titre / valeur".
+   <dt> = le titre (ex : "Nom"), <dd> = la valeur (ex : "Alice").
+   Les classes "row", "col-sm-2" et "col-sm-10" viennent de Bootstrap : elles placent
+   le titre à gauche (2 colonnes de large) et la valeur à droite (10 colonnes de large). *@
+<dl class="row">
+    <dt class="col-sm-2">Nom</dt>
+    <dd class="col-sm-10">@Model.Name</dd>
+
+    <dt class="col-sm-2">Email</dt>
+    <dd class="col-sm-10">@Model.Email</dd>
+
+    <dt class="col-sm-2">Téléphone</dt>
+    <dd class="col-sm-10">@Model.Phone</dd>
+
+    <dt class="col-sm-2">Abonné</dt>
+    @* Opérateur ternaire : affiche "Oui" si Subscribed vaut true, sinon "Non" *@
+    <dd class="col-sm-10">@(Model.Subscribed ? "Oui" : "Non")</dd>
+</dl>
+
+@* Lien vers la page de modification de CET étudiant (son Id est ajouté dans l'URL grâce à asp-route-id) *@
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Modifier</a>
+@* Lien de retour vers la liste des étudiants (action Index) *@
+<a asp-action="Index" class="btn btn-secondary">Retour à la liste</a>

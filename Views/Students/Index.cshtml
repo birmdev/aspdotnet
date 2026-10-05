@@ -1,0 +1,75 @@
+@* =====================================================================================
+   VUE INDEX : affiche la LISTE de tous les étudiants (le "R" de CRUD = Read)
+   Cette vue est affichée par l'action Index() du StudentsController.
+
+   Rappel sur la syntaxe Razor (fichiers .cshtml) :
+   - On écrit du HTML normal.
+   - Le symbole @ permet de passer en code C# (pour afficher une variable, faire un if, une boucle...).
+   - Un texte entre "@ étoile" et "étoile @" (comme ce bloc) est un commentaire Razor : il n'est jamais envoyé au navigateur.
+   ===================================================================================== *@
+
+@* @model indique le TYPE de données que la vue reçoit du contrôleur.
+   Ici, le contrôleur fait "return View(students);" avec une liste d'étudiants,
+   donc la vue reçoit une List<Student>. On y accède ensuite avec la variable "Model" (avec un M majuscule). *@
+@model List<AppASPNETCore.Models.Entities.Student>
+
+@{
+    // Bloc de code C#. ViewData["Title"] sert à définir le titre affiché dans l'onglet du navigateur
+    // (il est utilisé dans Views/Shared/_Layout.cshtml, dans la balise <title>).
+    ViewData["Title"] = "Liste des étudiants";
+}
+
+<h1>Liste des étudiants</h1>
+
+<p>
+    @* asp-action="Create" est un "Tag Helper" : ASP.NET génère automatiquement le bon lien href="/Students/Create".
+       On n'a donc pas besoin d'écrire l'URL à la main.
+       Les classes "btn btn-primary" viennent de Bootstrap (bibliothèque CSS) et donnent l'apparence d'un bouton bleu. *@
+    <a asp-action="Create" class="btn btn-primary">Ajouter un étudiant</a>
+</p>
+
+@* Si la liste est vide (0 étudiant), on affiche un message au lieu d'un tableau vide *@
+@if (Model.Count == 0)
+{
+    <p>Aucun étudiant pour le moment.</p>
+}
+else
+{
+    @* "table table-striped" : classes Bootstrap pour un joli tableau avec une ligne sur deux en gris *@
+    <table class="table table-striped">
+        @* <thead> : la ligne des titres de colonnes *@
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Abonné</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        @* <tbody> : le contenu du tableau, une ligne <tr> par étudiant *@
+        <tbody>
+            @* Boucle foreach : pour CHAQUE étudiant de la liste (Model), on crée une ligne du tableau *@
+            @foreach (var student in Model)
+            {
+                <tr>
+                    @* @student.Name affiche la valeur de la propriété Name de l'étudiant en cours *@
+                    <td>@student.Name</td>
+                    <td>@student.Email</td>
+                    <td>@student.Phone</td>
+                    @* Subscribed est un booléen (true/false). On utilise l'opérateur ternaire "condition ? siVrai : siFaux"
+                       pour afficher "Oui" si c'est true et "Non" si c'est false. *@
+                    <td>@(student.Subscribed ? "Oui" : "Non")</td>
+                    <td>
+                        @* asp-route-id="@student.Id" ajoute l'Id de l'étudiant à la fin de l'URL.
+                           Exemple de lien généré : /Students/Details/3f2a9c1e-...
+                           C'est grâce à cet Id que le contrôleur sait QUEL étudiant afficher, modifier ou supprimer. *@
+                        <a asp-action="Details" asp-route-id="@student.Id" class="btn btn-sm btn-info">Détails</a>
+                        <a asp-action="Edit" asp-route-id="@student.Id" class="btn btn-sm btn-warning">Modifier</a>
+                        <a asp-action="Delete" asp-route-id="@student.Id" class="btn btn-sm btn-danger">Supprimer</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

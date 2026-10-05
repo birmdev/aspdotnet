@@ -1,0 +1,44 @@
+@* =====================================================================================
+   VUE DELETE : page de CONFIRMATION avant de supprimer un étudiant (le "D" de CRUD = Delete)
+   - Elle est affichée par l'action Delete(Guid id) (requête GET) : à ce moment-là, RIEN n'est encore supprimé.
+   - La suppression n'a lieu que si l'utilisateur clique sur le bouton "Supprimer" :
+     le formulaire est alors envoyé à l'action DeleteConfirmed(Guid id) (requête POST).
+   ===================================================================================== *@
+
+@* La vue reçoit l'étudiant à supprimer, pour afficher ses informations et que l'utilisateur
+   vérifie qu'il supprime bien le bon étudiant. *@
+@model AppASPNETCore.Models.Entities.Student
+
+@{
+    ViewData["Title"] = "Supprimer un étudiant"; //Titre de l'onglet du navigateur
+}
+
+<h1>Supprimer un étudiant</h1>
+
+@* "text-danger" (Bootstrap) affiche le texte en rouge pour attirer l'attention *@
+<p class="text-danger">Voulez-vous vraiment supprimer cet étudiant ?</p>
+
+@* Rappel des informations de l'étudiant (même présentation que dans Details.cshtml) *@
+<dl class="row">
+    <dt class="col-sm-2">Nom</dt>
+    <dd class="col-sm-10">@Model.Name</dd>
+
+    <dt class="col-sm-2">Email</dt>
+    <dd class="col-sm-10">@Model.Email</dd>
+
+    <dt class="col-sm-2">Téléphone</dt>
+    <dd class="col-sm-10">@Model.Phone</dd>
+</dl>
+
+@* On utilise un FORMULAIRE en POST (et pas un simple lien) pour supprimer :
+   une action qui modifie la base de données ne doit jamais se faire avec un simple lien (GET),
+   sinon n'importe quel lien (ou un robot qui parcourt le site) pourrait supprimer des données.
+   asp-action="DeleteConfirmed" : le formulaire est envoyé à la méthode DeleteConfirmed du contrôleur. *@
+<form asp-action="DeleteConfirmed" method="post">
+    @* Champ caché qui contient l'Id de l'étudiant : c'est lui qui dit au contrôleur QUEL étudiant supprimer *@
+    <input type="hidden" asp-for="Id" />
+    @* Bouton rouge qui confirme et envoie la suppression *@
+    <button type="submit" class="btn btn-danger">Supprimer</button>
+    @* Lien pour annuler et revenir à la liste sans rien supprimer *@
+    <a asp-action="Index" class="btn btn-secondary">Annuler</a>
+</form>

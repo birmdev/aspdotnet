@@ -1,0 +1,74 @@
+@* =====================================================================================
+   VUE CREATE : formulaire pour AJOUTER un nouvel étudiant (le "C" de CRUD = Create)
+   - Elle est affichée une première fois VIDE par l'action Create() (requête GET).
+   - Quand on clique sur "Enregistrer", le formulaire est envoyé à l'action Create(Student student) (requête POST).
+   - Si les données sont invalides, le contrôleur réaffiche cette même vue avec les messages d'erreur.
+   ===================================================================================== *@
+
+@* La vue travaille avec un objet Student : cela permet aux Tag Helpers "asp-for" de savoir
+   quelles propriétés existent (Name, Email...) et quelles règles de validation leur appliquer. *@
+@model AppASPNETCore.Models.Entities.Student
+
+@{
+    ViewData["Title"] = "Ajouter un étudiant"; //Titre de l'onglet du navigateur
+}
+
+<h1>Ajouter un étudiant</h1>
+
+@* asp-action="Create" : le formulaire sera envoyé à l'action Create du contrôleur.
+   method="post" : les données sont envoyées avec une requête POST (donc vers la méthode marquée [HttpPost]).
+   Ce Tag Helper ajoute aussi automatiquement un champ caché "__RequestVerificationToken"
+   qui est vérifié par [ValidateAntiForgeryToken] dans le contrôleur (sécurité anti-CSRF). *@
+<form asp-action="Create" method="post">
+    @* Affiche les erreurs générales qui ne concernent pas un champ précis *@
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    @* ----- Champ NOM -----
+       "mb-3" (Bootstrap) ajoute une marge en bas pour espacer les champs. *@
+    <div class="mb-3">
+        @* asp-for="Name" relie le label à la propriété Name du modèle (le clic sur le label place le curseur dans le champ) *@
+        <label asp-for="Name" class="form-label">Nom</label>
+        @* asp-for="Name" génère automatiquement : name="Name", id="Name", le bon type de champ,
+           et les règles de validation ([Required], [StringLength(100)]) lues dans la classe Student.
+           Le nom "Name" est important : c'est lui qui permet au contrôleur de remplir student.Name. *@
+        <input asp-for="Name" class="form-control" />
+        @* Emplacement où s'affichera le message d'erreur du champ Name (ex : "The Name field is required.") *@
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    @* ----- Champ EMAIL -----
+       Grâce à [EmailAddress] dans la classe Student, asp-for génère un champ de type email. *@
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label">Email</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    @* ----- Champ TÉLÉPHONE ----- *@
+    <div class="mb-3">
+        <label asp-for="Phone" class="form-label">Téléphone</label>
+        <input asp-for="Phone" class="form-control" />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+
+    @* ----- Case à cocher ABONNÉ -----
+       Subscribed est un booléen (bool), donc asp-for génère automatiquement une case à cocher (checkbox).
+       Cochée = true, décochée = false. *@
+    <div class="mb-3 form-check">
+        <input asp-for="Subscribed" class="form-check-input" />
+        <label asp-for="Subscribed" class="form-check-label">Abonné</label>
+    </div>
+
+    @* Le bouton de type "submit" envoie le formulaire *@
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+    @* Simple lien pour revenir à la liste sans rien enregistrer *@
+    <a asp-action="Index" class="btn btn-secondary">Annuler</a>
+</form>
+
+@* La section "Scripts" est insérée en bas de la page par _Layout.cshtml (@RenderSectionAsync("Scripts")).
+   _ValidationScriptsPartial charge les scripts jQuery Validation : ils vérifient les champs
+   DIRECTEMENT dans le navigateur, avant même l'envoi du formulaire (plus rapide pour l'utilisateur).
+   La vérification côté serveur (ModelState.IsValid) reste indispensable par sécurité. *@
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
