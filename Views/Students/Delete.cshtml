@@ -33,8 +33,19 @@
 @* On utilise un FORMULAIRE en POST (et pas un simple lien) pour supprimer :
    une action qui modifie la base de données ne doit jamais se faire avec un simple lien (GET),
    sinon n'importe quel lien (ou un robot qui parcourt le site) pourrait supprimer des données.
-   asp-action="DeleteConfirmed" : le formulaire est envoyé à la méthode DeleteConfirmed du contrôleur. *@
-<form asp-action="DeleteConfirmed" method="post">
+   asp-action="DeleteConfirmed" : le formulaire est envoyé à la méthode DeleteConfirmed du contrôleur.
+
+   DOUBLE CONFIRMATION :
+   onsubmit="..." contient du JavaScript qui s'exécute juste AVANT l'envoi du formulaire.
+   - confirm('...') ouvre une petite fenêtre du navigateur avec deux boutons : "OK" et "Annuler".
+     Elle renvoie true si l'utilisateur clique sur "OK", et false s'il clique sur "Annuler".
+   - "return false" BLOQUE l'envoi du formulaire : l'étudiant n'est donc pas supprimé.
+   - "return true" laisse le formulaire partir vers le contrôleur : l'étudiant est supprimé.
+   On n'insère volontairement PAS le nom de l'étudiant dans le message : un nom contenant une apostrophe
+   (ex : "D'Amour") couperait le texte JavaScript et casserait la confirmation.
+   (Si le JavaScript est désactivé dans le navigateur, la page de confirmation reste une protection suffisante.) *@
+<form asp-action="DeleteConfirmed" method="post"
+      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer définitivement cet étudiant ? Cette action est irréversible.');">
     @* Champ caché qui contient l'Id de l'étudiant : c'est lui qui dit au contrôleur QUEL étudiant supprimer *@
     <input type="hidden" asp-for="Id" />
     @* Bouton rouge qui confirme et envoie la suppression *@
