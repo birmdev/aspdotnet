@@ -1,5 +1,6 @@
+using AppASPNETCore.Data; //Pour pouvoir utiliser ApplicationUser (notre classe qui représente un utilisateur)
 using AppASPNETCore.Models.ViewModels; //Pour pouvoir utiliser LoginViewModel et RegisterViewModel
-using Microsoft.AspNetCore.Identity; //Pour pouvoir utiliser UserManager, SignInManager et IdentityUser
+using Microsoft.AspNetCore.Identity; //Pour pouvoir utiliser UserManager et SignInManager
 using Microsoft.AspNetCore.Mvc; //Pour pouvoir utiliser Controller, IActionResult, [HttpPost], etc.
 
 namespace AppASPNETCore.Controllers
@@ -23,18 +24,18 @@ namespace AppASPNETCore.Controllers
     public class AccountController : Controller
     {
         // UserManager : sert à GÉRER les utilisateurs (créer un compte, chercher un utilisateur...).
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         // SignInManager : sert à CONNECTER et DÉCONNECTER les utilisateurs (vérifier le mot de passe, créer/supprimer le cookie).
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
         // ----------------------------------------------------------------------------------------
         // CONSTRUCTEUR : INJECTION DE DÉPENDANCES
         // Comme pour IStudentService, on ne crée pas ces objets avec "new" :
         // ASP.NET nous les donne automatiquement, car ils ont été enregistrés dans Program.cs
-        // avec builder.Services.AddIdentity<IdentityUser, IdentityRole>()...
+        // avec builder.Services.AddIdentity<ApplicationUser, IdentityRole>()...
         // ----------------------------------------------------------------------------------------
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -65,7 +66,7 @@ namespace AppASPNETCore.Controllers
 
             // On prépare le nouvel utilisateur.
             // Identity a besoin d'un "UserName" (nom d'utilisateur) : on utilise simplement l'email.
-            IdentityUser user = new IdentityUser
+            ApplicationUser user = new ApplicationUser
             {
                 UserName = model.Email,
                 Email = model.Email

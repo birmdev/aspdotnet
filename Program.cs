@@ -1,6 +1,6 @@
 using AppASPNETCore.Data;
 using AppASPNETCore.Services; //Pour pouvoir utiliser IStudentService et StudentService
-using Microsoft.AspNetCore.Identity; //Pour pouvoir utiliser IdentityUser et IdentityRole (gestion des utilisateurs)
+using Microsoft.AspNetCore.Identity; //Pour pouvoir utiliser IdentityRole (gestion des utilisateurs)
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,10 +23,12 @@ builder.Services.AddScoped<IStudentService, StudentService>();
 // AUTHENTIFICATION avec ASP.NET Core Identity
 // AddIdentity enregistre tous les outils d'Identity pour l'injection de dépendances :
 // UserManager (gérer les comptes) et SignInManager (connexion/déconnexion), utilisés dans AccountController.
-// - IdentityUser : la classe qui représente un utilisateur (fournie par Identity).
+// - ApplicationUser : NOTRE classe qui représente un utilisateur (Data/ApplicationUser.cs, elle hérite de IdentityUser).
 // - IdentityRole : la classe qui représente un rôle (ex : "Admin"), pas utilisée pour l'instant.
+// ATTENTION : Identity ne doit être enregistré qu'UNE SEULE FOIS (avec AddIdentity OU AddDefaultIdentity, jamais les deux).
+// Sinon, l'application plante au démarrage avec l'erreur "Scheme already exists: Identity.Application".
 // ================================================================================================
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     // Règles que doit respecter un mot de passe lors de l'inscription.
     // (Ce sont les règles par défaut d'Identity, écrites ici pour qu'on les voie clairement.)
@@ -40,7 +42,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     options.User.RequireUniqueEmail = true;
 })
     // On indique à Identity qu'il doit enregistrer les utilisateurs dans NOTRE base de données,
-    // grâce à notre StudentContext (qui hérite maintenant de IdentityDbContext).
+    // grâce à notre StudentContext (le seul contexte de l'application, qui hérite de IdentityDbContext<ApplicationUser>).
     .AddEntityFrameworkStores<StudentContext>()
     // Ajoute les outils qui génèrent des "jetons" (tokens), utilisés par exemple pour réinitialiser un mot de passe.
     .AddDefaultTokenProviders();
