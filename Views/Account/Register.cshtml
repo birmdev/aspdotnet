@@ -1,0 +1,64 @@
+@* =====================================================================================
+   VUE REGISTER : page d'INSCRIPTION (création d'un compte)
+   - Affichée par l'action Register() du AccountController (requête GET).
+   - Le formulaire est envoyé à l'action Register(RegisterViewModel model) (requête POST).
+   - Si le compte est créé, l'utilisateur est connecté automatiquement et redirigé vers la liste des étudiants.
+   ===================================================================================== *@
+
+@* La vue utilise le RegisterViewModel : asp-for connaît donc les champs Email, Password et ConfirmPassword *@
+@model AppASPNETCore.Models.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Inscription"; //Titre de l'onglet du navigateur
+}
+
+@* Bootstrap : contenu centré, sur la moitié de la largeur de l'écran *@
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h1>Créer un compte</h1>
+
+        <form asp-action="Register" method="post">
+            @* Affiche les erreurs générales renvoyées par Identity
+               (ex : "Passwords must have at least one digit", "Username 'x' is already taken") *@
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            @* ----- Champ EMAIL ----- *@
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" autocomplete="username" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            @* ----- Champ MOT DE PASSE -----
+               On rappelle les règles à respecter (elles sont définies dans Program.cs, dans AddIdentity) *@
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                @* autocomplete="new-password" : indique au navigateur qu'il s'agit d'un NOUVEAU mot de passe (il peut en proposer un) *@
+                <input asp-for="Password" class="form-control" autocomplete="new-password" />
+                @* "form-text" (Bootstrap) : petit texte d'aide grisé sous le champ *@
+                <div class="form-text">6 caractères minimum, avec au moins une majuscule, une minuscule, un chiffre et un caractère spécial.</div>
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            @* ----- Champ CONFIRMATION DU MOT DE PASSE -----
+               Grâce à [Compare("Password")] dans le ViewModel, une erreur s'affiche si les deux mots de passe sont différents *@
+            <div class="mb-3">
+                <label asp-for="ConfirmPassword" class="form-label"></label>
+                <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">S'inscrire</button>
+        </form>
+
+        @* Lien vers la page de connexion pour les personnes qui ont déjà un compte *@
+        <p class="mt-3">
+            Déjà un compte ? <a asp-action="Login">Se connecter</a>
+        </p>
+    </div>
+</div>
+
+@* Charge les scripts de validation côté navigateur *@
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

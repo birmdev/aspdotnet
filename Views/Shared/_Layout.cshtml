@@ -19,18 +19,53 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        @* Lien du menu vers la liste des étudiants : asp-controller="Students" + asp-action="Index" génèrent l'URL /Students *@
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Students" asp-action="Index">Étudiants</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+                    @* User.Identity.IsAuthenticated vaut true si l'utilisateur est CONNECTÉ, false sinon.
+                       (User est disponible dans toutes les vues : il est rempli grâce à app.UseAuthentication() dans Program.cs)
+                       Le "?." et "== true" évitent une erreur si User.Identity vaut null. *@
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        @* ===== Utilisateur CONNECTÉ : on affiche le menu de l'application ===== *@
+                        <ul class="navbar-nav flex-grow-1">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            </li>
+                            @* Lien du menu vers la liste des étudiants : asp-controller="Students" + asp-action="Index" génèrent l'URL /Students *@
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Students" asp-action="Index">Étudiants</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            </li>
+                        </ul>
+
+                        @* Partie droite du menu : email de l'utilisateur + bouton de déconnexion *@
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                @* User.Identity.Name contient le nom d'utilisateur, c'est-à-dire l'email (voir AccountController.Register) *@
+                                <span class="nav-link text-dark">Bonjour @User.Identity.Name</span>
+                            </li>
+                            <li class="nav-item">
+                                @* La déconnexion se fait avec un FORMULAIRE en POST (et pas un simple lien) pour des raisons de sécurité
+                                   (voir l'explication dans AccountController.Logout). "btn btn-link" donne au bouton l'apparence d'un lien. *@
+                                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+                                    <button type="submit" class="nav-link btn btn-link text-dark">Déconnexion</button>
+                                </form>
+                            </li>
+                        </ul>
+                    }
+                    else
+                    {
+                        @* ===== Utilisateur NON connecté : on affiche seulement les liens de connexion et d'inscription ===== *@
+                        @* "ms-auto" (Bootstrap) pousse ces liens tout à droite du menu *@
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Connexion</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Inscription</a>
+                            </li>
+                        </ul>
+                    }
                 </div>
             </div>
         </nav>

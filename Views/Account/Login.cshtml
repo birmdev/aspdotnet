@@ -1,0 +1,65 @@
+@* =====================================================================================
+   VUE LOGIN : page de CONNEXION
+   - Affichée par l'action Login() du AccountController (requête GET).
+   - Le formulaire est envoyé à l'action Login(LoginViewModel model, string? returnUrl) (requête POST).
+   - Les personnes non connectées qui essaient d'ouvrir une page protégée sont redirigées ici automatiquement.
+   ===================================================================================== *@
+
+@* La vue utilise le LoginViewModel : asp-for connaît donc les champs Email, Password et RememberMe,
+   ainsi que leurs règles de validation et leurs noms d'affichage ([Display(Name = "...")]). *@
+@model AppASPNETCore.Models.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Connexion"; //Titre de l'onglet du navigateur
+}
+
+@* Bootstrap : "row justify-content-center" centre le contenu, "col-md-6" lui donne une largeur de 6 colonnes sur 12 (la moitié de l'écran) *@
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h1>Connexion</h1>
+
+        @* asp-route-returnUrl : on renvoie l'adresse de la page que l'utilisateur voulait voir au départ
+           (elle est transmise par le contrôleur dans ViewData["ReturnUrl"]).
+           Après la connexion, le contrôleur pourra ainsi le rediriger vers cette page. *@
+        <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+            @* Affiche les erreurs générales, par exemple "Email ou mot de passe incorrect."
+               (ajoutées dans le contrôleur avec ModelState.AddModelError(string.Empty, ...)) *@
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            @* ----- Champ EMAIL ----- *@
+            <div class="mb-3">
+                @* Pas de texte entre les balises : asp-for affiche automatiquement le nom défini avec [Display(Name = "Email")] *@
+                <label asp-for="Email" class="form-label"></label>
+                @* autocomplete="username" aide le navigateur à proposer les identifiants enregistrés *@
+                <input asp-for="Email" class="form-control" autocomplete="username" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            @* ----- Champ MOT DE PASSE -----
+               Grâce à [DataType(DataType.Password)] dans le ViewModel, asp-for génère un champ type="password" (caractères cachés) *@
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" autocomplete="current-password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            @* ----- Case à cocher SE SOUVENIR DE MOI (RememberMe est un bool, donc asp-for génère une checkbox) ----- *@
+            <div class="mb-3 form-check">
+                <input asp-for="RememberMe" class="form-check-input" />
+                <label asp-for="RememberMe" class="form-check-label"></label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Se connecter</button>
+        </form>
+
+        @* Lien vers la page d'inscription pour les personnes qui n'ont pas encore de compte *@
+        <p class="mt-3">
+            Pas encore de compte ? <a asp-action="Register">Créer un compte</a>
+        </p>
+    </div>
+</div>
+
+@* Charge les scripts de validation côté navigateur (vérification des champs avant l'envoi du formulaire) *@
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

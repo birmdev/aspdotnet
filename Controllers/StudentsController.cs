@@ -1,5 +1,6 @@
 using AppASPNETCore.Models.Entities; //Pour pouvoir utiliser la classe Student (notre modèle)
 using AppASPNETCore.Services; //Pour pouvoir utiliser l'interface IStudentService (notre service)
+using Microsoft.AspNetCore.Authorization; //Pour pouvoir utiliser l'attribut [Authorize]
 using Microsoft.AspNetCore.Mvc; //Pour pouvoir utiliser Controller, IActionResult, [HttpPost], etc.
 
 namespace AppASPNETCore.Controllers
@@ -29,7 +30,14 @@ namespace AppASPNETCore.Controllers
     // Toutes les actions qui accèdent aux données sont asynchrones ("async Task<IActionResult>").
     // Pendant qu'une action attend la base de données, le serveur reste libre de répondre
     // aux autres utilisateurs : il n'est pas bloqué si plusieurs personnes utilisent le site en même temps.
+    //
+    // AUTHENTIFICATION :
+    // L'attribut [Authorize] placé au-dessus de la classe protège TOUTES les actions de ce contrôleur :
+    // seuls les utilisateurs CONNECTÉS peuvent voir, ajouter, modifier ou supprimer des étudiants.
+    // Si une personne non connectée essaie d'ouvrir une de ces pages, elle est automatiquement
+    // redirigée vers la page de connexion (/Account/Login, réglée dans Program.cs).
     // ============================================================================================
+    [Authorize]
     public class StudentsController : Controller //On hérite de Controller pour avoir accès à View(), NotFound(), RedirectToAction(), ModelState...
     {
         // _studentService est le service qui gère les étudiants.

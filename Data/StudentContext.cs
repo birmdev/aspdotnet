@@ -1,9 +1,19 @@
 ﻿using AppASPNETCore.Models.Entities;
+using Microsoft.AspNetCore.Identity; //Pour pouvoir utiliser IdentityUser (la classe qui représente un utilisateur qui peut se connecter)
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore; //Pour pouvoir utiliser IdentityDbContext
 using Microsoft.EntityFrameworkCore;
 
 namespace AppASPNETCore.Data
 {
-    public class StudentContext : DbContext
+    // AUTHENTIFICATION : le contexte hérite maintenant de IdentityDbContext<IdentityUser> au lieu de DbContext.
+    // IdentityDbContext est lui-même un DbContext (on garde donc tout ce qu'on avait avant, dont la table Students),
+    // mais il ajoute automatiquement toutes les tables nécessaires pour gérer les utilisateurs :
+    //   - AspNetUsers      : les comptes utilisateurs (email, mot de passe chiffré, ...)
+    //   - AspNetRoles      : les rôles (ex : "Admin"), pas utilisés pour l'instant
+    //   - AspNetUserRoles, AspNetUserClaims, AspNetUserLogins, AspNetUserTokens, AspNetRoleClaims : tables techniques d'Identity
+    // Ces tables ont été créées dans la base de données grâce à la migration "AddIdentity"
+    // (commandes : dotnet ef migrations add AddIdentity, puis dotnet ef database update).
+    public class StudentContext : IdentityDbContext<IdentityUser>
     {
         public StudentContext(DbContextOptions<StudentContext> options) : base(options)
         {
