@@ -21,12 +21,19 @@
 
 <h1>Liste des étudiants</h1>
 
-<p>
-    @* asp-action="Create" est un "Tag Helper" : ASP.NET génère automatiquement le bon lien href="/Students/Create".
-       On n'a donc pas besoin d'écrire l'URL à la main.
-       Les classes "btn btn-primary" viennent de Bootstrap (bibliothèque CSS) et donnent l'apparence d'un bouton bleu. *@
-    <a asp-action="Create" class="btn btn-primary">Ajouter un étudiant</a>
-</p>
+@* RÔLE ADMIN : User.IsInRole("Admin") vaut true si l'utilisateur connecté a le rôle Admin.
+   On affiche le bouton "Ajouter" UNIQUEMENT aux Admin : inutile de montrer un bouton qui mènerait à "Accès refusé".
+   (Cacher le bouton ne suffit pas pour la sécurité : c'est l'attribut [Authorize(Roles = ...)] du contrôleur
+   qui bloque vraiment l'accès. Ici, c'est seulement pour l'affichage.) *@
+@if (User.IsInRole("Admin"))
+{
+    <p>
+        @* asp-action="Create" est un "Tag Helper" : ASP.NET génère automatiquement le bon lien href="/Students/Create".
+           On n'a donc pas besoin d'écrire l'URL à la main.
+           Les classes "btn btn-primary" viennent de Bootstrap (bibliothèque CSS) et donnent l'apparence d'un bouton bleu. *@
+        <a asp-action="Create" class="btn btn-primary">Ajouter un étudiant</a>
+    </p>
+}
 
 @* Si la liste est vide (0 étudiant), on affiche un message au lieu d'un tableau vide *@
 @if (Model.Count == 0)
@@ -65,8 +72,12 @@ else
                            Exemple de lien généré : /Students/Details/3f2a9c1e-...
                            C'est grâce à cet Id que le contrôleur sait QUEL étudiant afficher, modifier ou supprimer. *@
                         <a asp-action="Details" asp-route-id="@student.Id" class="btn btn-sm btn-info">Détails</a>
-                        <a asp-action="Edit" asp-route-id="@student.Id" class="btn btn-sm btn-warning">Modifier</a>
-                        <a asp-action="Delete" asp-route-id="@student.Id" class="btn btn-sm btn-danger">Supprimer</a>
+                        @* Boutons Modifier et Supprimer : affichés uniquement aux Admin (même principe que le bouton "Ajouter") *@
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-action="Edit" asp-route-id="@student.Id" class="btn btn-sm btn-warning">Modifier</a>
+                            <a asp-action="Delete" asp-route-id="@student.Id" class="btn btn-sm btn-danger">Supprimer</a>
+                        }
                     </td>
                 </tr>
             }

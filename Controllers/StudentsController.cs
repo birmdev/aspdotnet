@@ -33,9 +33,16 @@ namespace AppASPNETCore.Controllers
     //
     // AUTHENTIFICATION :
     // L'attribut [Authorize] placé au-dessus de la classe protège TOUTES les actions de ce contrôleur :
-    // seuls les utilisateurs CONNECTÉS peuvent voir, ajouter, modifier ou supprimer des étudiants.
+    // seuls les utilisateurs CONNECTÉS peuvent accéder aux étudiants.
     // Si une personne non connectée essaie d'ouvrir une de ces pages, elle est automatiquement
-    // redirigée vers la page de connexion (/Account/Login, réglée dans Program.cs).
+    // redirigée vers la page de connexion (/Identity/Account/Login, réglée dans Program.cs).
+    //
+    // RÔLE ADMIN :
+    // En plus, les actions de création, modification et suppression ont l'attribut [Authorize(Roles = "Admin")] :
+    // elles sont réservées aux utilisateurs qui ont le rôle "Admin" (rôle créé au démarrage dans Program.cs).
+    // Un utilisateur connecté SANS ce rôle peut seulement voir la liste et le détail des étudiants ;
+    // s'il essaie d'ouvrir une page réservée, il est redirigé vers la page "Accès refusé" (AccessDeniedPath dans Program.cs).
+    // Les deux attributs s'additionnent : il faut être connecté (celui de la classe) ET être Admin (celui de l'action).
     // ============================================================================================
     [Authorize]
     public class StudentsController : Controller //On hérite de Controller pour avoir accès à View(), NotFound(), RedirectToAction(), ModelState...
@@ -105,6 +112,7 @@ namespace AppASPNETCore.Controllers
         // URL : GET /Students/Create
         // Cette action n'accède pas à la base de données : elle n'a donc pas besoin d'être asynchrone.
         // ========================================================================================
+        [Authorize(Roles = "Admin")] //Réservé aux utilisateurs qui ont le rôle "Admin"
         public IActionResult Create()
         {
             return View(); //Affiche Views/Students/Create.cshtml sans données (formulaire vide)
@@ -117,6 +125,7 @@ namespace AppASPNETCore.Controllers
         // de savoir laquelle appeler (celle-ci uniquement pour les requêtes POST).
         // ========================================================================================
         [HttpPost] //Cette action ne répond qu'aux requêtes POST (envoi de formulaire)
+        [Authorize(Roles = "Admin")] //Réservé aux Admin. INDISPENSABLE aussi sur la version POST : sinon quelqu'un pourrait envoyer le formulaire directement, sans passer par la page
         [ValidateAntiForgeryToken] //Sécurité : vérifie que le formulaire vient bien de NOTRE site (protection contre les attaques CSRF). Le jeton est ajouté automatiquement dans le formulaire par le tag <form asp-action="...">
         public async Task<IActionResult> Create(Student student) //ASP.NET remplit automatiquement l'objet "student" avec les champs du formulaire (c'est le "model binding") : le champ "Name" va dans student.Name, etc.
         {
@@ -142,6 +151,7 @@ namespace AppASPNETCore.Controllers
         // UPDATE (Modifier) - ÉTAPE 1 : afficher le formulaire PRÉ-REMPLI avec les infos actuelles
         // URL : GET /Students/Edit/{id}
         // ========================================================================================
+        [Authorize(Roles = "Admin")] //Réservé aux utilisateurs qui ont le rôle "Admin"
         public async Task<IActionResult> Edit(Guid id)
         {
             // On demande au service l'étudiant à modifier
@@ -162,6 +172,7 @@ namespace AppASPNETCore.Controllers
         // URL : POST /Students/Edit
         // ========================================================================================
         [HttpPost] //Uniquement pour les requêtes POST (envoi du formulaire)
+        [Authorize(Roles = "Admin")] //Réservé aux Admin (voir l'explication dans Create)
         [ValidateAntiForgeryToken] //Sécurité anti-CSRF (voir l'explication dans Create)
         public async Task<IActionResult> Edit(Student student) //"student" contient les nouvelles valeurs du formulaire, ET son Id grâce au champ caché (input hidden) de la vue
         {
@@ -190,6 +201,7 @@ namespace AppASPNETCore.Controllers
         // On ne supprime pas directement au clic : on demande d'abord confirmation à l'utilisateur
         // pour éviter les suppressions par erreur.
         // ========================================================================================
+        [Authorize(Roles = "Admin")] //Réservé aux utilisateurs qui ont le rôle "Admin"
         public async Task<IActionResult> Delete(Guid id)
         {
             // On récupère l'étudiant pour pouvoir afficher ses informations sur la page de confirmation
@@ -210,6 +222,7 @@ namespace AppASPNETCore.Controllers
         // méthodes avec le même nom ET les mêmes paramètres (ici les deux recevraient un Guid id).
         // ========================================================================================
         [HttpPost] //Uniquement pour les requêtes POST (clic sur le bouton "Supprimer" du formulaire)
+        [Authorize(Roles = "Admin")] //Réservé aux Admin (voir l'explication dans Create)
         [ValidateAntiForgeryToken] //Sécurité anti-CSRF (voir l'explication dans Create)
         public async Task<IActionResult> DeleteConfirmed(Guid id) //L'id vient du champ caché (input hidden) du formulaire de la vue Delete
         {

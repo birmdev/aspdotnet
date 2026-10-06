@@ -84,6 +84,13 @@ public class RegisterModel : PageModel
         [Display(Name = "Nom")]
         public string LastName { get; set; } = default!;
 
+        // AJOUT : rôle choisi par l'utilisateur dans la liste déroulante ("Admin" ou "User").
+        // [Required] : l'utilisateur doit obligatoirement choisir un rôle.
+        // (Pour l'exercice : dans une vraie application, on ne laisserait pas chacun se donner le rôle Admin.)
+        [Required]
+        [Display(Name = "Rôle")]
+        public string Role { get; set; } = default!;
+
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -124,6 +131,18 @@ public class RegisterModel : PageModel
     {
         returnUrl ??= Url.Content("~/");
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+        // AJOUT : on vérifie que le rôle reçu est bien "Admin" ou "User".
+        // La liste déroulante ne propose que ces deux rôles, mais une personne mal intentionnée pourrait
+        // modifier le formulaire dans son navigateur et envoyer un autre texte : on ne fait JAMAIS confiance
+        // aux données envoyées par le navigateur sans les vérifier côté serveur.
+        // "!=" veut dire "différent de", "&&" veut dire "ET" : si le rôle n'est ni "Admin" ni "User", c'est une erreur.
+        if (Input.Role != "Admin" && Input.Role != "User")
+        {
+            // On ajoute une erreur sur le champ Role : ModelState.IsValid deviendra false juste en dessous
+            ModelState.AddModelError("Input.Role", "Veuillez choisir un rôle valide.");
+        }
+
         if (ModelState.IsValid)
         {
             var user = CreateUser();
@@ -140,6 +159,12 @@ public class RegisterModel : PageModel
             if (result.Succeeded)
             {
                 _logger.LogInformation("User created a new account with password.");
+
+                // AJOUT : le compte est créé, on lui donne le rôle choisi dans le formulaire.
+                // AddToRoleAsync ajoute une ligne dans la table AspNetUserRoles (lien entre l'utilisateur et le rôle).
+                // On le fait AVANT la connexion automatique (SignInAsync plus bas) : le rôle est ainsi
+                // enregistré dans le cookie de connexion dès le départ.
+                await _userManager.AddToRoleAsync(user, Input.Role);
 
                 var userId = await _userManager.GetUserIdAsync(user);
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);

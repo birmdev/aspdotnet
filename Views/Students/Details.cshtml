@@ -32,7 +32,11 @@
     <dd class="col-sm-10">@(Model.Subscribed ? "Oui" : "Non")</dd>
 </dl>
 
-@* Lien vers la page de modification de CET étudiant (son Id est ajouté dans l'URL grâce à asp-route-id) *@
-<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Modifier</a>
+@* Lien vers la page de modification de CET étudiant (son Id est ajouté dans l'URL grâce à asp-route-id).
+   Affiché uniquement aux utilisateurs qui ont le rôle Admin (voir l'explication dans Index.cshtml). *@
+@if (User.IsInRole("Admin"))
+{
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Modifier</a>
+}
 @* Lien de retour vers la liste des étudiants (action Index) *@
 <a asp-action="Index" class="btn btn-secondary">Retour à la liste</a>

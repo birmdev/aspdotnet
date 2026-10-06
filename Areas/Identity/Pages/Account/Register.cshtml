@@ -40,6 +40,21 @@
                 <label asp-for="Input.ConfirmPassword">Confirm Password</label>
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
+            @* AJOUT : liste déroulante pour choisir son rôle (propriété Input.Role de Register.cshtml.cs).
+               - asp-for="Input.Role" : relie la liste au champ Role (nom envoyé au serveur : "Input.Role").
+               - Chaque <option> est un choix de la liste : "value" est la valeur envoyée au serveur.
+               - La première <option> (value vide) s'affiche par défaut : comme le champ est [Required],
+                 l'utilisateur est obligé de choisir un vrai rôle.
+               - "form-select" : classe Bootstrap pour une jolie liste déroulante. *@
+            <div class="form-floating mb-3">
+                <select asp-for="Input.Role" class="form-select" aria-required="true">
+                    <option value="">-- Choisir un rôle --</option>
+                    <option value="Admin">Admin</option>
+                    <option value="User">User</option>
+                </select>
+                <label asp-for="Input.Role">Rôle</label>
+                <span asp-validation-for="Input.Role" class="text-danger"></span>
+            </div>
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
         </form>
     </div>

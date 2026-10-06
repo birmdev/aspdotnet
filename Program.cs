@@ -76,9 +76,50 @@ builder.Services.ConfigureApplicationCookie(options =>
     // C'est la page de connexion fournie par Identity UI (fichier Areas/Identity/Pages/Account/Login.cshtml).
     // ("/Identity" est le nom de l'"Area", c'est-à-dire du dossier Areas/Identity.)
     options.LoginPath = "/Identity/Account/Login";
+
+    // Page affichée quand un utilisateur CONNECTÉ essaie d'ouvrir une page à laquelle il n'a pas droit
+    // (ex : un utilisateur qui n'est pas Admin essaie d'ajouter un étudiant). Page fournie par Identity UI.
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
 });
 
 var app = builder.Build();
+
+// ================================================================================================
+// RÔLES : au démarrage de l'application, on crée les rôles "Admin" et "User" (s'ils n'existent pas encore),
+// puis on donne le rôle "Admin" à l'administrateur dont l'email est indiqué dans appsettings.json (clé "AdminEmail").
+//
+// CreateScope() : RoleManager et UserManager utilisent le StudentContext, qui est "Scoped" (créé pour chaque requête HTTP).
+// Au démarrage il n'y a pas de requête HTTP : on crée donc nous-mêmes un "scope" (une durée de vie temporaire),
+// et le "using" le supprime automatiquement à la fin du bloc.
+// ================================================================================================
+using (var scope = app.Services.CreateScope())
+{
+    // RoleManager : l'outil d'Identity pour manipuler les rôles (table AspNetRoles).
+    // UserManager : l'outil d'Identity pour manipuler les utilisateurs (table AspNetUsers).
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+    // 1) Création des rôles : RoleExistsAsync vérifie si le rôle existe déjà, CreateAsync le crée.
+    if (!await roleManager.RoleExistsAsync("Admin"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("Admin"));
+    }
+    if (!await roleManager.RoleExistsAsync("User"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("User"));
+    }
+
+    // 2) Attribution du rôle "Admin" : FindByEmailAsync cherche l'utilisateur grâce à son email.
+    // L'email est lu dans appsettings.json ; "?? """ remplace une valeur null (clé absente) par un texte vide.
+    var user = await userManager.FindByEmailAsync(app.Configuration["AdminEmail"] ?? "");
+
+    // On n'ajoute le rôle que si le compte existe (user != null) ET qu'il n'est pas déjà Admin (IsInRoleAsync).
+    // AddToRoleAsync ajoute une ligne dans la table AspNetUserRoles (lien entre l'utilisateur et le rôle).
+    if (user != null && !await userManager.IsInRoleAsync(user, "Admin"))
+    {
+        await userManager.AddToRoleAsync(user, "Admin");
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
