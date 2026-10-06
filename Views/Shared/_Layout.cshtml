@@ -1,4 +1,36 @@
-﻿<!DOCTYPE html>
+﻿@using AppASPNETCore.Data
+@using Microsoft.AspNetCore.Identity
+@* @inject : INJECTION DE DÉPENDANCES dans une vue.
+   On demande à ASP.NET un UserManager<ApplicationUser> (l'outil d'Identity pour gérer les utilisateurs),
+   disponible ensuite dans la vue sous le nom "UserManager". On s'en sert juste en dessous pour récupérer
+   le prénom et le nom de l'utilisateur connecté.
+   (Les deux lignes @using au-dessus permettent d'écrire ApplicationUser et UserManager sans leur nom complet.) *@
+@inject UserManager<ApplicationUser> UserManager
+@{
+    // Texte affiché dans le menu après "Bonjour" quand l'utilisateur est connecté (voir plus bas dans le menu).
+    string displayName = "";
+
+    if (User.Identity?.IsAuthenticated == true) //Seulement si l'utilisateur est connecté
+    {
+        // On va chercher dans la base de données l'utilisateur actuellement connecté.
+        // GetUserAsync lit l'Id de l'utilisateur dans son cookie de connexion (User), puis récupère
+        // l'objet ApplicationUser correspondant dans la table AspNetUsers (avec son prénom et son nom).
+        ApplicationUser? currentUser = await UserManager.GetUserAsync(User);
+
+        // On assemble "Prénom Nom".
+        // Trim() enlève les espaces au début et à la fin (utile si le prénom ou le nom est vide).
+        displayName = $"{currentUser?.FirstName} {currentUser?.LastName}".Trim();
+
+        // Si l'utilisateur n'a pas encore de prénom ni de nom (compte créé avant cette fonctionnalité),
+        // on affiche son email à la place, pour ne pas afficher "Bonjour" tout seul.
+        // string.IsNullOrEmpty vérifie si le texte est vide ; "?? """ remplace une valeur null par un texte vide.
+        if (string.IsNullOrEmpty(displayName))
+        {
+            displayName = User.Identity.Name ?? "";
+        }
+    }
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -38,16 +70,16 @@
                             </li>
                         </ul>
 
-                        @* Partie droite du menu : email de l'utilisateur + bouton de déconnexion.
+                        @* Partie droite du menu : nom de l'utilisateur + bouton de déconnexion.
                            Les liens pointent vers les pages d'Identity UI (dossier Areas/Identity/Pages/Account) :
                            - asp-area="Identity" : la page se trouve dans l'Area "Identity" (le dossier Areas/Identity) ;
                            - asp-page="/Account/..." : le chemin de la page à l'intérieur de Areas/Identity/Pages.
                            (On utilise asp-page et pas asp-controller/asp-action car ce sont des Razor Pages, pas des vues MVC.) *@
                         <ul class="navbar-nav">
                             <li class="nav-item">
-                                @* User.Identity.Name contient le nom d'utilisateur, c'est-à-dire l'email.
-                                   Le lien mène à la page "Gérer mon compte" d'Identity (changer d'email, de mot de passe...). *@
-                                <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index">Bonjour @User.Identity.Name</a>
+                                @* On affiche "Bonjour Prénom Nom" (variable displayName calculée en haut de ce fichier).
+                                   Le lien mène à la page "Gérer mon compte" d'Identity (modifier son prénom, son nom, son mot de passe...). *@
+                                <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index">Bonjour @displayName</a>
                             </li>
                             <li class="nav-item">
                                 @* La déconnexion se fait avec un FORMULAIRE en POST (et pas un simple lien) pour des raisons de sécurité :

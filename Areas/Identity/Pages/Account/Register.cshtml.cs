@@ -70,6 +70,20 @@ public class RegisterModel : PageModel
     /// </summary>
     public class InputModel
     {
+        // AJOUT : champ "Prénom" du formulaire d'inscription.
+        // [Required] : obligatoire. [StringLength(50)] : 50 caractères maximum (comme dans ApplicationUser).
+        // [Display(Name = "Prénom")] : texte affiché dans les messages d'erreur (ex : "The Prénom field is required.").
+        [Required]
+        [StringLength(50)]
+        [Display(Name = "Prénom")]
+        public string FirstName { get; set; } = default!;
+
+        // AJOUT : champ "Nom" du formulaire d'inscription.
+        [Required]
+        [StringLength(50)]
+        [Display(Name = "Nom")]
+        public string LastName { get; set; } = default!;
+
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -113,6 +127,11 @@ public class RegisterModel : PageModel
         if (ModelState.IsValid)
         {
             var user = CreateUser();
+
+            // AJOUT : on recopie le prénom et le nom saisis dans le formulaire dans le nouvel utilisateur.
+            // Ils seront enregistrés dans la table AspNetUsers en même temps que le reste (lors de CreateAsync plus bas).
+            user.FirstName = Input.FirstName;
+            user.LastName = Input.LastName;
 
             await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);

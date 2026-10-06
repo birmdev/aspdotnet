@@ -12,6 +12,19 @@
             <h2>Create a new account.</h2>
             <hr />
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            @* AJOUT : champs Prénom et Nom (propriétés Input.FirstName et Input.LastName de Register.cshtml.cs).
+               "form-floating" (Bootstrap) : le texte du label est affiché dans le champ, puis remonte quand on écrit.
+               autocomplete="given-name" / "family-name" : aide le navigateur à proposer le prénom / nom enregistré. *@
+            <div class="form-floating mb-3">
+                <input asp-for="Input.FirstName" class="form-control" autocomplete="given-name" aria-required="true" placeholder="Prénom" />
+                <label asp-for="Input.FirstName">Prénom</label>
+                <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.LastName" class="form-control" autocomplete="family-name" aria-required="true" placeholder="Nom" />
+                <label asp-for="Input.LastName">Nom</label>
+                <span asp-validation-for="Input.LastName" class="text-danger"></span>
+            </div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
                 <label asp-for="Input.Email">Email</label>

@@ -52,6 +52,18 @@ public class IndexModel : PageModel
     /// </summary>
     public class InputModel
     {
+        // AJOUT : champs Prénom et Nom, pour que l'utilisateur puisse les modifier depuis "Gérer mon compte".
+        // (Utile aussi pour les comptes créés AVANT l'ajout du prénom et du nom, qui n'en ont pas encore.)
+        [Required]
+        [StringLength(50)]
+        [Display(Name = "Prénom")]
+        public string FirstName { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(50)]
+        [Display(Name = "Nom")]
+        public string LastName { get; set; } = string.Empty;
+
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -70,6 +82,9 @@ public class IndexModel : PageModel
 
         Input = new InputModel
         {
+            // AJOUT : on pré-remplit le formulaire avec le prénom et le nom actuels de l'utilisateur
+            FirstName = user.FirstName,
+            LastName = user.LastName,
             PhoneNumber = phoneNumber
         };
     }
@@ -98,6 +113,22 @@ public class IndexModel : PageModel
         {
             await LoadAsync(user);
             return Page();
+        }
+
+        // AJOUT : si le prénom ou le nom a changé, on met à jour l'utilisateur.
+        // ("||" veut dire "OU" : il suffit qu'un des deux ait changé.)
+        if (Input.FirstName != user.FirstName || Input.LastName != user.LastName)
+        {
+            user.FirstName = Input.FirstName;
+            user.LastName = Input.LastName;
+
+            // UpdateAsync enregistre les modifications de l'utilisateur dans la table AspNetUsers
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                StatusMessage = "Erreur inattendue lors de la mise à jour du prénom et du nom.";
+                return RedirectToPage();
+            }
         }
 
         var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
